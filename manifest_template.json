@@ -1,0 +1,13 @@
+{
+  "name": "cdnjs - local loader",
+  "version": "3.0",
+  "manifest_version": 3,
+  "description": "cdnjs local loader downloads the entire cdn to your computer, don't worry this is no bigger than 10mb. cdnjs is maintained by Ryan Kirkman and Thomas Davis. cdnjs is sponsored and run on CloudFlare in a joint project to speed up the web.",
+  "background": {
+    "scripts": ["cdnjs.js"]
+  },
+  "permissions": [
+    "webRequest", "webRequestBlocking", "http://*/*"
+  ],
+  "web_accessible_resources": RESOURCES
+}
