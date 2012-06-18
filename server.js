@@ -4,7 +4,7 @@ var express = require('express');
 var app = express.createServer();
 var http = require('http');
 var fs = require('fs-extra');
-var AdmZip = require('adm-zip');
+var AdmZip = require('./adm-zip');
 var ChromeExtension = require("./crx")
 
 app.configure(function() {
@@ -20,13 +20,13 @@ app.post('/', function(req, res) {
 
 	var request = require("request");
 	console.log('starting request');
-	request('http://github.com/cdnjs/cdnjs/zipball/master', function() {
+	//request('http://github.com/cdnjs/cdnjs/zipball/master', function() {
 		console.log('finished request');
 		var resources2;
 		fs.removeSync('extension');
 		fs.mkdirSync('extension');
 		var zip = new AdmZip("./cdnjs.zip");
-		zip.extractAllTo( /*target path*/ "extension/", /*overwrite*/ true);
+		zip.extractAllTo('extension',  false);
 
 		var cdnjsFolderZipName = fs.readdirSync('extension')[0];
 		fs.renameSync('extension/' + cdnjsFolderZipName, 'extension/cdnjs');
@@ -91,7 +91,7 @@ app.post('/', function(req, res) {
 
 
 
-	}).pipe(fs.createWriteStream('cdnjs.zip'))
+//	}).pipe(fs.createWriteStream('cdnjs.zip'))
 });
 
 
