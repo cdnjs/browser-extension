@@ -23,13 +23,15 @@ app.post('/', function(req, res) {
 	//request('http://github.com/cdnjs/cdnjs/zipball/master', function() {
 		console.log('finished request');
 		var resources2;
-		fs.removeSync('extension');
+		fs.removeSync('extension/cdnjs');
+		fs.removeSync('scratch');
 		fs.mkdirSync('extension');
+		fs.mkdirSync('scratch');
 		var zip = new AdmZip("./cdnjs.zip");
-		zip.extractAllTo('extension',  false);
+		zip.extractAllTo('scratch',  false);
 
-		var cdnjsFolderZipName = fs.readdirSync('extension')[0];
-		fs.renameSync('extension/' + cdnjsFolderZipName, 'extension/cdnjs');
+		var cdnjsFolderZipName = fs.readdirSync('scratch')[0];
+		fs.renameSync('scratch/' + cdnjsFolderZipName, 'extension/cdnjs');
 
 		options = {};
 		glob("extension/cdnjs/ajax/**/*.js", options, function(er, files) {
@@ -41,7 +43,7 @@ app.post('/', function(req, res) {
 			resources2 += ']';
 
 
-			fs.readFile('manifest_template.json', 'ascii', function(err, data) {
+			fs.readFile('extension/manifest.json', 'ascii', function(err, data) {
 
 				if (err) {
 
@@ -50,16 +52,20 @@ app.post('/', function(req, res) {
 					process.exit(1);
 
 				}
-
-				data = data.replace('RESOURCES', resources2);
-				fs.writeFile("extension/manifest.json", data, function(err) {
+			var manifest = JSON.parse(data);
+			console.log(manifest);
+      manifest.version = manifest.version*1 + 0.01;
+      manifest.web_accessible_resources = files;
+      console.log(manifest);
+				fs.writeFile("extension/manifest.json", JSON.stringify(manifest), function(err) {
 					if (err) {
 						console.log(err);
 					} else {
 						fs.copy('cdnjs.js', 'extension/cdnjs.js', function() {
 							var crx = new ChromeExtension({
 								privateKey: fs.readFileSync("key.pem"),
-								rootDirectory: "extension"
+								rootDirectory: "extension",
+								codebase: 'http://github.com/cdnjs/browser-extension'
 							})
 							console.log('compile crx');
 							crx.load(function(err) {
@@ -71,11 +77,14 @@ app.post('/', function(req, res) {
 									console.log(arguments);
 									if (err) throw err
 
+									  var updateXML = this.generateUpdateXML()
 
+   								 fs.writeFile("public/update.xml", updateXML);
 									fs.writeFile("public/cdnjs-local-loader.crx", data)
 									console.log('done');
 
-									fs.removeSync('cdnjs.zip');
+									//fs.removeSync('cdnjs.zip');
+									//fs.removeSync('extension');
 									this.destroy()
 									res.send({});
 								})
@@ -91,7 +100,7 @@ app.post('/', function(req, res) {
 
 
 
-//	}).pipe(fs.createWriteStream('cdnjs.zip'))
+	//}).pipe(fs.createWriteStream('cdnjs.zip'))
 });
 
 
