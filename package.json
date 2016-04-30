@@ -13,7 +13,7 @@
     "request": "2.72.x",
     "underscore": "1.8.x",
     "adm-zip": "0.4.x",
-    "fs-extra": "0.1.x",
+    "fs-extra": "0.30.x",
     "glob": "7.0.x"
   }
 }
